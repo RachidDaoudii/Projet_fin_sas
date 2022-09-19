@@ -11,15 +11,15 @@
         float Prix;
     };
 
-    struct Satistique{
-        time_t date;
-        int Max;
-        int Min;
-        float Moyenne;
-        int nombre;
-    };
-    struct Satistique satistique;
-
+//    struct Satistique{
+//        time_t date;
+//        int Max;
+//        int Min;
+//        float Moyenne;
+//        int nombre;
+//    };
+//    struct Satistique satistique;
+    float minPrix = 0, maxPrix = 0 ,moyennePrix = 0 ,totalPrix = 0 ,counteurVent = 0;
     //Menu
     void Option(int choix){
         printf("\n");
@@ -72,7 +72,10 @@
                 system("cls");
                 break;
             case 54:
-
+                system("cls");
+                afficherStatistique();
+                getch();
+                system("cls");
                 break;
             case 55:
                 exit(0);
@@ -238,8 +241,9 @@ void Acheter(){
     struct Produit produit_Achat;
     FILE *file_produit;
     FILE *file_produit_Achat;
-    int code,quantite;
+    int code;
     int existe = 0;
+    float tprix,quantite;
     file_produit = fopen("produit.txt","r");
     file_produit_Achat = fopen("produit_Achat.txt","w");
     printf("Donner le code de produit ");
@@ -248,24 +252,27 @@ void Acheter(){
         if(produit.Code == code){
             existe=1;
             printf("Donner le quantite de vende :");
-            scanf(" %d",&quantite);
+            scanf(" %f",&quantite);
             produit_Achat.Code = produit.Code ;
             strcpy(produit_Achat.Nom,produit.Nom);
-            produit.Quantite = produit.Quantite - quantite;
-            produit_Achat.Quantite = produit.Quantite;
+            produit_Achat.Quantite = produit.Quantite - quantite;
 
-            produit_Achat.Prix = 0.15*produit.Prix;
+            produit_Achat.Prix = produit.Prix;
+            tprix = produit.Prix * quantite;
+            ListeAchate(tprix);
+            printf(" PRIX TOTAL EST  : %.2f\n",tprix);
 
-            printf(" PRIX TOTAL EST  : %.2f\n",produit_Achat.Prix);
+            statistique(tprix);
 
-            fwrite(&produit,sizeof(struct Produit),1,file_produit_Achat);
+            fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
         }else{
-           fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
+           fwrite(&produit,sizeof(struct Produit),1,file_produit_Achat);
         }
     }
-    ListeAchate(produit_Achat.Prix);
+
     fclose(file_produit);
     fclose(file_produit_Achat);
+
     printf("\n\t\t\t\t produit est achat \n");
     remove("produit.txt");
     rename("produit_Achat.txt","produit.txt");
@@ -274,15 +281,33 @@ void Acheter(){
 
 }
 
-void ListeAchate(float prix){
-    FILE *fille_Achate;
-    fille_Achate = fopen("Liste_Achate.txt","a");
-    time(satistique.date);
-    fprintf("\n Date de achate le produit: %s \n Prix Total : %.2f", ctime(satistique.date),prix);
-    fclose(fille_Achate);
-
+void ListeAchate(float prx){
+    FILE *file_achate;
+    time_t temp = time(0);
+    char date[20] ;
+    strcpy(date,ctime(&temp));
+    file_achate =fopen("Liste_Achat","a");
+    fprintf(file_achate,"\n Date d achate produit est : %s || Le Prix TTC : %.2f",date,&prx);
+    fclose(file_achate);
 }
 
+void statistique(float prix){
+    printf("prix : %f",prix);
+    if(maxPrix < prix)
+        maxPrix = prix;
+    if( minPrix == 0 || prix < minPrix )
+        minPrix = prix;
+    counteurVent++;
+}
+void afficherStatistique(){
+
+    time_t temp = time(0);
+    printf("\n\t\t\t la journe courante         : %s \n",ctime(&temp));
+    printf("\n\t\t\t le totale des prix des produits vendue          : %2.f \n",totalPrix);
+    printf("\n\t\t\t le max prix de produit vendue     : %2.f \n",maxPrix);
+    printf("\n\t\t\t le min prix de produit vendue         : %.2f \n",minPrix);
+    printf("\n\t\t\t le moyenne des prix des produits vendues     : %.2f \n",totalPrix / counteurVent );
+}
 int main()
 {
     int choix;
