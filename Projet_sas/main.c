@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <time.h>
 
 
     struct Produit{
@@ -10,10 +11,19 @@
         float Prix;
     };
 
+    struct Satistique{
+        time_t date;
+        int Max;
+        int Min;
+        float Moyenne;
+        int nombre;
+    };
+    struct Satistique satistique;
 
     //Menu
     void Option(int choix){
         printf("\n");
+        system("cls");
         printf("\t \t================= bienvenu =================\n\n\n");
         printf("\t \t 1_ Ajouter un ou  plusieurs nouveaux produits \n");
         printf("\t \t 2_ Rechercher les produits \n");
@@ -24,7 +34,7 @@
         printf("\t \t 7_ Exit \n");
         printf("\t \t===========================================\n");
 
-        scanf(" %c",&choix);
+        scanf("%c",&choix);
 
 //        do{
 //            scanf(" %c",&choix);
@@ -85,10 +95,10 @@
         scanf("%d",&produit.Quantite);
         printf("\n\t\t Donner le prix de produit     :");
         scanf("%f",&produit.Prix);
-        printf("\t\t_____________________________\n");
         fwrite(&produit,sizeof(struct Produit),1,file_produit);
+        printf("\t\t_____________________________\n");
         printf("AJOUTER AUTRE PRODUIT !! (Y/n)\n");
-        scanf("%s",&autre);
+        scanf("%c",&autre);
     }while(autre =='y'||autre=='Y');
     fclose(file_produit);
 }
@@ -157,9 +167,7 @@ void Rechercher_Produit(FILE *file_produit){
                 goto debut;
     }
 }
-void CalculPrixTTC(){
 
-}
 //Afficher les Listes des Produits
 void AfficherListeProduit(){
     FILE *file_produit;
@@ -174,7 +182,7 @@ void AfficherListeProduit(){
         printf("\n\t\t\t Nom de Produit est          : %s \n",produit.Nom);
         printf("\n\t\t\t quantite de Produit est     : %d \n",produit.Quantite);
         printf("\n\t\t\t Prix de Produit est         : %.2f %s \n",produit.Prix,"DH");
-        printf("\n\t\t\t Prix TTC de Produit est     : %.2f %s \n",(produit.Prix*0.15)+produit.Prix,"DH");
+        printf("\n\t\t\t Prix TTC de Produit est     : %.2f %s \n",produit.Prix+0.15,"DH");
         printf("\t\t\t _______________________________________\n");
         }
         fclose(file_produit);
@@ -245,13 +253,17 @@ void Acheter(){
             strcpy(produit_Achat.Nom,produit.Nom);
             produit.Quantite = produit.Quantite - quantite;
             produit_Achat.Quantite = produit.Quantite;
-            produit_Achat.Prix = produit.Prix;
+
+            produit_Achat.Prix = 0.15*produit.Prix;
+
+            printf(" PRIX TOTAL EST  : %.2f\n",produit_Achat.Prix);
 
             fwrite(&produit,sizeof(struct Produit),1,file_produit_Achat);
         }else{
            fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
         }
     }
+    ListeAchate(produit_Achat.Prix);
     fclose(file_produit);
     fclose(file_produit_Achat);
     printf("\n\t\t\t\t produit est achat \n");
@@ -260,6 +272,14 @@ void Acheter(){
     if(!existe)
         printf("Produit n est existe pas");
 
+}
+
+void ListeAchate(float prix){
+    FILE *fille_Achate;
+    fille_Achate = fopen("Liste_Achate.txt","a");
+    time(satistique.date);
+    fprintf("\n Date de achate le produit: %s \n Prix Total : %.2f", ctime(satistique.date),prix);
+    fclose(fille_Achate);
 
 }
 
