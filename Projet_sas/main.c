@@ -3,7 +3,7 @@
 #include <conio.h>
 #include <time.h>
 
-
+    //declare structeure
     struct Produit{
         int Code;
         char Nom[20];
@@ -11,17 +11,13 @@
         float Prix;
     };
 
-//    struct Satistique{
-//        time_t date;
-//        int Max;
-//        int Min;
-//        float Moyenne;
-//        int nombre;
-//    };
-//    struct Satistique satistique;
-    float minPrix = 0, maxPrix = 0 ,moyennePrix = 0 ,totalPrix = 0 ,counteurVent = 0;
-    //Menu
-    void Option(int choix){
+    //les varaible global
+    float minPrix = 0, maxPrix = 0 ,moyennePrix = 0 ,totalPrix = 0 ,nbrVente = 0;
+    struct Produit produit;
+    FILE *file_produit;
+
+//Menu
+void Option(int choix){
         printf("\n");
         system("cls");
         printf("\t \t================= bienvenu =================\n\n\n");
@@ -31,15 +27,10 @@
         printf("\t \t 4_ afficher  liste des produits \n");
         printf("\t \t 5_ Acheter produit \n");
         printf("\t \t 6_ Statistique de vente \n");
-        printf("\t \t 7_ Exit \n");
+        printf("\t \t 7_ Ajouter le produit dans le stock \n");
+        printf("\t \t 8_ Exit \n");
         printf("\t \t===========================================\n");
-
         scanf("%c",&choix);
-
-//        do{
-//            scanf(" %c",&choix);
-//        }while (choix <= 48 || choix > 55);
-
         switch(choix){
             case 49:
                 system("cls");
@@ -78,15 +69,25 @@
                 system("cls");
                 break;
             case 55:
+                system("cls");
+                Stock();
+                getch();
+                system("cls");
+                break;
+            case 56:
                 exit(0);
                 break;
         }
     };
-    //Ajouter un Produit
-    void Ajouter_Produit(FILE *file_produit){
-    char autre;
+
+
+//Ajouter un Produit
+void Ajouter_Produit(FILE *file_produit){
+    int nbr;
     struct Produit produit;
-    do{
+    printf("AJOUTER NOMBRE DE  PRODUIT !!\n");
+    scanf(" %d",&nbr);
+    while(nbr < 0);{
         system("cls");
         printf("\t====Ajouter un nouveau produit=== \n");
         file_produit = fopen("Produit.txt","a");
@@ -98,11 +99,10 @@
         scanf("%d",&produit.Quantite);
         printf("\n\t\t Donner le prix de produit     :");
         scanf("%f",&produit.Prix);
+        nbr--;
         fwrite(&produit,sizeof(struct Produit),1,file_produit);
         printf("\t\t_____________________________\n");
-        printf("AJOUTER AUTRE PRODUIT !! (Y/n)\n");
-        scanf("%c",&autre);
-    }while(autre =='y'||autre=='Y');
+    }
     fclose(file_produit);
 }
 
@@ -191,6 +191,7 @@ void AfficherListeProduit(){
         fclose(file_produit);
 }
 
+//Supprimer des Produits par code
 void SupprimerProduit(){
 
     FILE *file_produit,*file_produit_supprimer;
@@ -198,44 +199,33 @@ void SupprimerProduit(){
     int code ;
     int existe=0;
 
-       printf("\t\t\t\t=======DELETE STUDENTS RECORD=======\n\n\n");
+    printf("\t\t\t\t======= SUPPRIMER LE PRODUIT=======\n\n\n");
     file_produit=fopen("produit.txt","r");
     file_produit_supprimer=fopen("supp_produit.txt","w");
     printf("\t\t\t\t Donner le code de produit : ");
     scanf("%d",&code);
-    if(file_produit==NULL){
-         printf("File ovrire\n");
-         exit(0);
-      }
-
     while(fread(&produit,sizeof(struct Produit),1,file_produit)){
         if(produit.Code == code){
-
             existe=1;
-
         }else{
            fwrite(&produit,sizeof(struct Produit),1,file_produit_supprimer);
         }
-
     }
-     fclose(file_produit);
-     fclose(file_produit_supprimer);
-
+    fclose(file_produit);
+    fclose(file_produit_supprimer);
     if(!existe){
-          printf("\n\t\t\t\t produit n est existe pas\n");
-        }
-      if(existe){
+        printf("\n\t\t\t\t produit n est existe pas\n");
+    }
+    else{
         remove("produit.txt");
         rename("supp_produit.txt","produit.txt");
-
         printf("\n\t\t\t\tproduit est supprimer\n");
-        }
-
-  getch();
-
+    }
+    getch();
     printf("\t\t\t _______________________________________\n");
-
 }
+
+//Achate les produit
 void Acheter(){
     struct Produit produit;
     struct Produit produit_Achat;
@@ -243,11 +233,13 @@ void Acheter(){
     FILE *file_produit_Achat;
     int code;
     int existe = 0;
-    float tprix,quantite;
+    double tprix;
+    float quantite;
     file_produit = fopen("produit.txt","r");
     file_produit_Achat = fopen("produit_Achat.txt","w");
     printf("Donner le code de produit ");
     scanf(" %d",&code);
+
     while(fread(&produit,sizeof(struct Produit),1,file_produit)){
         if(produit.Code == code){
             existe=1;
@@ -256,24 +248,28 @@ void Acheter(){
             produit_Achat.Code = produit.Code ;
             strcpy(produit_Achat.Nom,produit.Nom);
             produit_Achat.Quantite = produit.Quantite - quantite;
-
             produit_Achat.Prix = produit.Prix;
-            tprix = produit.Prix * quantite;
-            ListeAchate(tprix);
-            printf(" PRIX TOTAL EST  : %.2f\n",tprix);
-
-            statistique(tprix);
-
+            tprix = (produit.Prix + 0.15)* quantite;
+            if(produit_Achat.Quantite <= 0  ){
+                printf("Quntite de produit vide \n");
+            }
+            else{
+                printf("\n\t\t\t\t produit est achat \n");
+                //function enregistrer le prix TTC et la date d’achat
+                ListeAchate(tprix,produit_Achat.Nom);
+                //function calculer les satistique
+                statistique(tprix);
+                printf(" PRIX TOTAL EST  : %.2f %s\n",tprix,"DH");
+            }
             fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
-        }else{
+        }
+        else{
            fwrite(&produit,sizeof(struct Produit),1,file_produit_Achat);
         }
     }
 
     fclose(file_produit);
     fclose(file_produit_Achat);
-
-    printf("\n\t\t\t\t produit est achat \n");
     remove("produit.txt");
     rename("produit_Achat.txt","produit.txt");
     if(!existe)
@@ -281,39 +277,109 @@ void Acheter(){
 
 }
 
-void ListeAchate(float prx){
+//function enregistrer le prix TTC et la date d’achat
+void ListeAchate(double prix,char nom[10]){
     FILE *file_achate;
     time_t temp = time(0);
-    char date[20] ;
+    char date[20];
     strcpy(date,ctime(&temp));
-    file_achate =fopen("Liste_Achat","a");
-    fprintf(file_achate,"\n Date d achate produit est : %s || Le Prix TTC : %.2f",date,&prx);
+    file_achate = fopen("Liste_Achat","a");
+    fprintf(file_achate,"Nom de produit : %s \n",nom);
+    fprintf(file_achate,"Date d achate produit est : %s \nLe Prix TTC : %.2f %s\n",date,prix,"DH");
+    fprintf(file_achate,"_______________________________________________________\n");
     fclose(file_achate);
 }
-
-void statistique(float prix){
-    printf("prix : %f",prix);
+//function calculer les satistique
+void statistique(double prix){
     if(maxPrix < prix)
         maxPrix = prix;
     if( minPrix == 0 || prix < minPrix )
         minPrix = prix;
-    counteurVent++;
+    totalPrix+=prix;
+    nbrVente++;
 }
+
+//Aficher les satistique des les produits vente Aujourd hui
 void afficherStatistique(){
 
-    time_t temp = time(0);
-    printf("\n\t\t\t la journe courante         : %s \n",ctime(&temp));
-    printf("\n\t\t\t le totale des prix des produits vendue          : %2.f \n",totalPrix);
-    printf("\n\t\t\t le max prix de produit vendue     : %2.f \n",maxPrix);
-    printf("\n\t\t\t le min prix de produit vendue         : %.2f \n",minPrix);
-    printf("\n\t\t\t le moyenne des prix des produits vendues     : %.2f \n",totalPrix / counteurVent );
+    time_t date = time(0);
+    printf("\n\t\t\t la journe courante                       : %s \n",ctime(&date));
+    printf("\n\t\t\t le totale des prix des produits vendue   : %.2f %s\n",totalPrix,"DH");
+    printf("\n\t\t\t le max prix de produit vendue            : %.2f %s\n",maxPrix,"DH");
+    printf("\n\t\t\t le min prix de produit vendue            : %.2f %s\n",minPrix,"DH");
+    printf("\n\t\t\t le moyenne des prix des produits vendues : %.2f \n",totalPrix / nbrVente );
 }
+
+//Ajouter les Quntite des produit
+void Stock(){
+    struct Produit produit;
+    struct Produit produit_Stock;
+    FILE *file_produit;
+    FILE *file_produit_Stock;
+    int code;
+    int existe = 0,quantite;
+    file_produit = fopen("produit.txt","r");
+    file_produit_Stock = fopen("produit_Sockt.txt","w");
+    printf("Donner le code de produit ");
+    scanf(" %d",&code);
+
+    while(fread(&produit,sizeof(struct Produit),1,file_produit)){
+        if(produit.Code == code){
+            existe=1;
+            printf("Donner le quantite de vende :");
+            scanf(" %d",&quantite);
+            produit_Stock.Code = produit.Code;
+            strcpy(produit_Stock.Nom,produit.Nom);
+            produit_Stock.Quantite = produit.Quantite + quantite;
+            produit_Stock.Prix = produit.Prix;
+            printf("\n\t\t\t\t quantite  est modifier \n");
+
+            fwrite(&produit_Stock,sizeof(struct Produit),1,file_produit_Stock);
+        }else{
+           fwrite(&produit,sizeof(struct Produit),1,file_produit_Stock);
+        }
+    }
+    fclose(file_produit);
+    fclose(file_produit_Stock);
+    remove("produit.txt");
+    rename("produit_Sockt.txt","produit.txt");
+    if(!existe)
+        printf("Produit n est existe pas");
+}
+
+//void sort(){
+//    struct Produit produit[100];
+//    file_produit = fopen("produit.txt","rb");
+//
+//    for(int i=0;i<100;i++)
+//        fread(&produit[i],sizeof(struct Produit),1,file_produit);
+//
+//    for(int i=0;i<100;i++){
+//        for(int j=i+1;j<100;j++){
+//             if(strcmp(produit[i].Prix,produit[j].Code)<0){
+//                        produit[i].Code = produit[j].Code;
+//                        strcpy(produit[i].Nom,produit[j].Nom);
+//                        produit[i].Quantite = produit[j].Quantite;
+//                        produit[i].Prix = produit[j].Prix;
+//                fwrite(&produit[i],sizeof(struct Produit),1,file_produit);
+//             }
+//        }
+//
+//    }
+//
+//    fclose(file_produit);
+//
+//
+//}
+
+
 int main()
 {
     int choix;
     do{
         Option(choix);
-    }while(choix <= 48 || choix > 55);
+    }while(choix <= 48 || choix > 56);
+
 
     return 0;
 }
