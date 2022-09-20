@@ -84,7 +84,7 @@ void Option(int choix){
 
 
 //Ajouter un Produit
-void Ajouter_Produit(FILE *file_produit){
+void Ajouter_Produit(){
     int nbr;
     file_produit = fopen("Produit.txt","a");
     printf("\n\t\t Donner le nombre des produits     :");
@@ -108,8 +108,7 @@ void Ajouter_Produit(FILE *file_produit){
 }
 
 //Rechercher Produit
-void Rechercher_Produit(FILE *file_produit){
-    struct Produit produit;
+void Rechercher_Produit(){
     int Quantite_produit,code_produit;
     int existe = 0;
     file_produit=fopen("Produit.txt","r");
@@ -133,7 +132,7 @@ void Rechercher_Produit(FILE *file_produit){
                 scanf("%d",&code_produit);
                 while(fread(&produit,sizeof(struct Produit),1,file_produit)){
                     if(produit.Code == code_produit){
-                            existe = 1;
+                        existe = 1;
                         printf("\n\t\t\t Code de Produit est     : %d \n",produit.Code);
                         printf("\n\t\t\t Nom de Produit est      : %s \n",produit.Nom);
                         printf("\n\t\t\t quantite de Produit est : %d \n",produit.Quantite);
@@ -154,7 +153,7 @@ void Rechercher_Produit(FILE *file_produit){
                 scanf(" %d",&Quantite_produit);
                 while(fread(&produit,sizeof(struct Produit),1,file_produit)){
                     if(produit.Quantite == Quantite_produit){
-                            existe = 1;
+                        existe = 1;
                         printf("\n\t\t\t Code de Produit est     : %d \n",produit.Code);
                         printf("\n\t\t\t Nom de Produit est      : %s \n",produit.Nom);
                         printf("\n\t\t\t quantite de Produit est : %d \n",produit.Quantite);
@@ -167,6 +166,7 @@ void Rechercher_Produit(FILE *file_produit){
                 fclose(file_produit);
                 break;
             default:
+                system("cls");
                 printf("\n\t\t\t choisir 1 ou 2 : \n");
                 goto debut;
     }
@@ -174,8 +174,6 @@ void Rechercher_Produit(FILE *file_produit){
 
 //Afficher les Listes des Produits
 void AfficherListeProduit(){
-    FILE *file_produit;
-    struct Produit produit;
     file_produit = fopen("produit.txt","r");
     system("cls");
     printf("\t\t\t ============= la listes des produits par code ============ \n\n");
@@ -195,14 +193,13 @@ void AfficherListeProduit(){
 //Supprimer des Produits par code
 void SupprimerProduit(){
 
-    FILE *file_produit,*file_produit_supprimer;
-    struct Produit produit;
+    FILE *file_produit_supprimer;
     int code ;
     int existe=0;
-
-    printf("\t\t\t\t======= SUPPRIMER LE PRODUIT=======\n\n\n");
     file_produit=fopen("produit.txt","r");
     file_produit_supprimer=fopen("supp_produit.txt","w");
+    printf("\t\t\t\t======= SUPPRIMER LE PRODUIT=======\n\n\n");
+
     printf("\t\t\t\t Donner le code de produit : ");
     scanf("%d",&code);
     while(fread(&produit,sizeof(struct Produit),1,file_produit)){
@@ -223,14 +220,11 @@ void SupprimerProduit(){
         printf("\n\t\t\t\tproduit est supprimer\n");
     }
     getch();
-    printf("\t\t\t _______________________________________\n");
 }
 
 //Achate les produit
 void Acheter(){
-    struct Produit produit;
     struct Produit produit_Achat;
-    FILE *file_produit;
     FILE *file_produit_Achat;
     int code;
     int existe = 0;
@@ -307,9 +301,7 @@ void afficherStatistique(){
 
 //Ajouter les Quntite des produit
 void Stock(){
-    struct Produit produit;
     struct Produit produit_Stock;
-    FILE *file_produit;
     FILE *file_produit_Stock;
     int code;
     int existe = 0,quantite;
