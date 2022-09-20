@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <time.h>
 
+
     //declare structeure
     struct Produit{
         int Code;
@@ -53,6 +54,7 @@ void Option(int choix){
             case 52:
                 system("cls");
                 AfficherListeProduit();
+//                sort();
                 getch();
                 system("cls");
                 break;
@@ -84,13 +86,13 @@ void Option(int choix){
 //Ajouter un Produit
 void Ajouter_Produit(FILE *file_produit){
     int nbr;
+    file_produit = fopen("Produit.txt","a");
+    printf("\n\t\t Donner le nombre des produits     :");
+    scanf("%d",&nbr);
     struct Produit produit;
-    printf("AJOUTER NOMBRE DE  PRODUIT !!\n");
-    scanf(" %d",&nbr);
-    while(nbr < 0);{
+    while( nbr != 0){
         system("cls");
         printf("\t====Ajouter un nouveau produit=== \n");
-        file_produit = fopen("Produit.txt","a");
         printf("\n\t\t Donner le code de produit     :");
         scanf("%d",&produit.Code);
         printf("\n\t\t Donner le nom de produit      :");
@@ -99,9 +101,8 @@ void Ajouter_Produit(FILE *file_produit){
         scanf("%d",&produit.Quantite);
         printf("\n\t\t Donner le prix de produit     :");
         scanf("%f",&produit.Prix);
-        nbr--;
         fwrite(&produit,sizeof(struct Produit),1,file_produit);
-        printf("\t\t_____________________________\n");
+        nbr--;
     }
     fclose(file_produit);
 }
@@ -239,28 +240,22 @@ void Acheter(){
     file_produit_Achat = fopen("produit_Achat.txt","w");
     printf("Donner le code de produit ");
     scanf(" %d",&code);
-
-    while(fread(&produit,sizeof(struct Produit),1,file_produit)){
-        if(produit.Code == code){
+    printf("Donner le quantite de vende :");
+    scanf(" %f",&quantite);
+     while(fread(&produit,sizeof(struct Produit),1,file_produit)){
+        if(produit.Code == code && produit.Quantite >= quantite  ){
             existe=1;
-            printf("Donner le quantite de vende :");
-            scanf(" %f",&quantite);
             produit_Achat.Code = produit.Code ;
             strcpy(produit_Achat.Nom,produit.Nom);
             produit_Achat.Quantite = produit.Quantite - quantite;
             produit_Achat.Prix = produit.Prix;
             tprix = (produit.Prix + 0.15)* quantite;
-            if(produit_Achat.Quantite <= 0  ){
-                printf("Quntite de produit vide \n");
-            }
-            else{
-                printf("\n\t\t\t\t produit est achat \n");
-                //function enregistrer le prix TTC et la date d’achat
-                ListeAchate(tprix,produit_Achat.Nom);
-                //function calculer les satistique
-                statistique(tprix);
-                printf(" PRIX TOTAL EST  : %.2f %s\n",tprix,"DH");
-            }
+            //function enregistrer le prix TTC et la date
+            ListeAchate(tprix,produit_Achat.Nom);
+            //function calculer les satistique
+            statistique(tprix);
+            printf("\n\t\t\t\t produit est achat \n");
+            printf(" PRIX TOTAL EST  : %.2f %s\n",tprix,"DH");
             fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
         }
         else{
@@ -348,26 +343,29 @@ void Stock(){
 }
 
 //void sort(){
-//    struct Produit produit[100];
-//    file_produit = fopen("produit.txt","rb");
+//    struct Produit produit[100],pro[100];
+//    file_produit = fopen("produit.txt","r");
 //
-//    for(int i=0;i<100;i++)
-//        fread(&produit[i],sizeof(struct Produit),1,file_produit);
-//
-//    for(int i=0;i<100;i++){
-//        for(int j=i+1;j<100;j++){
-//             if(strcmp(produit[i].Prix,produit[j].Code)<0){
-//                        produit[i].Code = produit[j].Code;
-//                        strcpy(produit[i].Nom,produit[j].Nom);
-//                        produit[i].Quantite = produit[j].Quantite;
-//                        produit[i].Prix = produit[j].Prix;
-//                fwrite(&produit[i],sizeof(struct Produit),1,file_produit);
-//             }
+//    while(fread(&produit[100],sizeof(struct Produit),1,file_produit)){
+//        for(int i=0;i<100;i++){
+//            for(int j=0;j<100;j++){
+//                if(produit[i].Prix < produit[j].Prix){
+//                    pro[i] =produit[i];
+//                    produit[i]=produit[j];
+//                    produit[j]=pro[i];
+//                }
+//            }
 //        }
-//
+//    }
+//    for(int i=0;i<100;i++){
+//        printf("\n\t\t\t Code de Produit est     : %d \n",produit[i].Code);
+//        printf("\n\t\t\t Nom de Produit est      : %s \n",produit[i].Nom);
+//        printf("\n\t\t\t quantite de Produit est : %d \n",produit[i].Quantite);
+//        printf("\n\t\t\t Prix de Produit est     : %.2f %s \n",produit[i].Prix,"DH");
 //    }
 //
 //    fclose(file_produit);
+//
 //
 //
 //}
