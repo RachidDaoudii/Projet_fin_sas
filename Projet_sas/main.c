@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include <time.h>
+
 
 
     //declare structeure
@@ -32,6 +32,7 @@ void Option(int choix){
         printf("\t \t 8_ Exit \n");
         printf("\t \t===========================================\n");
         scanf("%c",&choix);
+        //les choix
         switch(choix){
             case 49:
                 system("cls");
@@ -72,7 +73,7 @@ void Option(int choix){
                 break;
             case 55:
                 system("cls");
-                Stock();
+                AjouterQunatite();
                 getch();
                 system("cls");
                 break;
@@ -87,20 +88,21 @@ void Option(int choix){
 void Ajouter_Produit(){
     int nbr;
     file_produit = fopen("Produit.txt","a");
-    printf("\n\t\t Donner le nombre des produits     :");
+    printf("\n\t\t\t Donner le nombre des produits     :");
     scanf("%d",&nbr);
-    struct Produit produit;
     while( nbr != 0){
         system("cls");
-        printf("\t====Ajouter un nouveau produit=== \n");
-        printf("\n\t\t Donner le code de produit     :");
+        printf("\t\t\t====Ajouter un nouveau produit=== \n");
+        printf("\n\t\t\t Donner le code de produit     :");
         scanf("%d",&produit.Code);
-        printf("\n\t\t Donner le nom de produit      :");
+        printf("\n\t\t\t Donner le nom de produit      :");
         scanf("%s",&produit.Nom);
-        printf("\n\t\t Donner le quantite de produit :");
+        printf("\n\t\t\t Donner le quantite de produit :");
         scanf("%d",&produit.Quantite);
-        printf("\n\t\t Donner le prix de produit     :");
+        printf("\n\t\t\t Donner le prix de produit     :");
         scanf("%f",&produit.Prix);
+        printf("\n\t\t\t Produit est Ajouet");
+        getch();
         fwrite(&produit,sizeof(struct Produit),1,file_produit);
         nbr--;
     }
@@ -116,11 +118,12 @@ void Rechercher_Produit(){
     printf("\t\t\t ============= RECHERCHER PAR CODE OU QUANTITE ============ \n\n");
     debut:
     printf("\n\t\t\t 1_ Rechercher les produits Par code     :");
-    printf("\n\t\t\t 2_ Rechercher les produits Par Quantite :\n");
+    printf("\n\t\t\t 2_ Rechercher les produits Par Quantite : ");
+    printf("\n\t\t\t 3_ Rechercher les produits Par Quantite inferieure a 3 :\n");
     int choix_rechercher;
     do{
         scanf("%c",&choix_rechercher);
-    }while (choix_rechercher <= 48 || choix_rechercher > 51);
+    }while (choix_rechercher <= 48 || choix_rechercher > 52);
 
     switch(choix_rechercher){
         //rechercher par code
@@ -141,7 +144,7 @@ void Rechercher_Produit(){
                     }
                 }
                 if(!existe)
-                    printf("Il n'y a pas de produit");
+                    printf("\n\t\t\t\t Il n y a pas de produit");
                 fclose(file_produit);
                 break;
         //rechercher par quantite
@@ -162,7 +165,25 @@ void Rechercher_Produit(){
                     }
                 }
                 if(!existe)
-                    printf("Il n'y a pas de produit");
+                    printf(" \n\t\t\t Il n'y a pas de produit");
+                fclose(file_produit);
+                break;
+        case 51:
+                system("cls");
+                printf("\t\t\t ============= RECHERCHER des produits par QUANTITE INFERIEURE A 3 ============ \n\n");
+                printf("\t\t\t _______________________________________\n");
+                while(fread(&produit,sizeof(struct Produit),1,file_produit)){
+                    if(produit.Quantite < 3 ){
+                        existe = 1;
+                        printf("\n\t\t\t Code de Produit est     : %d \n",produit.Code);
+                        printf("\n\t\t\t Nom de Produit est      : %s \n",produit.Nom);
+                        printf("\n\t\t\t quantite de Produit est : %d \n",produit.Quantite);
+                        printf("\n\t\t\t Prix de Produit est     : %.2f %s \n",produit.Prix,"DH");
+                        printf("\t\t\t _______________________________________\n");
+                    }
+                }
+                if(!existe)
+                    printf(" \n\t\t\t Il n'y a pas de produit");
                 fclose(file_produit);
                 break;
             default:
@@ -211,15 +232,12 @@ void SupprimerProduit(){
     }
     fclose(file_produit);
     fclose(file_produit_supprimer);
+    remove("produit.txt");
+    rename("supp_produit.txt","produit.txt");
+    printf("\n\t\t\t\t produit est supprimer\n");
     if(!existe){
         printf("\n\t\t\t\t produit n est existe pas\n");
     }
-    else{
-        remove("produit.txt");
-        rename("supp_produit.txt","produit.txt");
-        printf("\n\t\t\t\tproduit est supprimer\n");
-    }
-    getch();
 }
 
 //Achate les produit
@@ -232,13 +250,13 @@ void Acheter(){
     float quantite;
     file_produit = fopen("produit.txt","r");
     file_produit_Achat = fopen("produit_Achat.txt","w");
-    printf("Donner le code de produit ");
+    printf("\n\t\t\t\t Donner le code de produit ");
     scanf(" %d",&code);
-    printf("Donner le quantite de vende :");
+    printf("\n\t\t\t\t Donner le quantite de vende :");
     scanf(" %f",&quantite);
      while(fread(&produit,sizeof(struct Produit),1,file_produit)){
         if(produit.Code == code && produit.Quantite >= quantite  ){
-            existe=1;
+            existe = 1;
             produit_Achat.Code = produit.Code ;
             strcpy(produit_Achat.Nom,produit.Nom);
             produit_Achat.Quantite = produit.Quantite - quantite;
@@ -249,7 +267,7 @@ void Acheter(){
             //function calculer les satistique
             statistique(tprix);
             printf("\n\t\t\t\t produit est achat \n");
-            printf(" PRIX TOTAL EST  : %.2f %s\n",tprix,"DH");
+            printf("\n\t\t\t\t PRIX TOTAL EST  : %.2f %s\n",tprix,"DH");
             fwrite(&produit_Achat,sizeof(struct Produit),1,file_produit_Achat);
         }
         else{
@@ -262,11 +280,11 @@ void Acheter(){
     remove("produit.txt");
     rename("produit_Achat.txt","produit.txt");
     if(!existe)
-        printf("Produit n est existe pas");
+        printf("\n\t\t\t\t Produit n est existe pas");
 
 }
 
-//function enregistrer le prix TTC et la date d’achat
+//function enregistrer le prix TTC et la date d achat
 void ListeAchate(double prix,char nom[10]){
     FILE *file_achate;
     time_t temp = time(0);
@@ -300,20 +318,20 @@ void afficherStatistique(){
 }
 
 //Ajouter les Quntite des produit
-void Stock(){
+void AjouterQunatite(){
     struct Produit produit_Stock;
     FILE *file_produit_Stock;
     int code;
     int existe = 0,quantite;
     file_produit = fopen("produit.txt","r");
     file_produit_Stock = fopen("produit_Sockt.txt","w");
-    printf("Donner le code de produit ");
+    printf("\n\t\t\t\t Donner le code de produit ");
     scanf(" %d",&code);
 
     while(fread(&produit,sizeof(struct Produit),1,file_produit)){
         if(produit.Code == code){
-            existe=1;
-            printf("Donner le quantite de vende :");
+            existe = 1;
+            printf("\n\t\t\t\t Donner le quantite de vende :");
             scanf(" %d",&quantite);
             produit_Stock.Code = produit.Code;
             strcpy(produit_Stock.Nom,produit.Nom);
@@ -331,36 +349,9 @@ void Stock(){
     remove("produit.txt");
     rename("produit_Sockt.txt","produit.txt");
     if(!existe)
-        printf("Produit n est existe pas");
+        printf("\n\t\t\t\t Produit n est existe pas");
 }
 
-//void sort(){
-//    struct Produit produit[100],pro[100];
-//    file_produit = fopen("produit.txt","r");
-//
-//    while(fread(&produit[100],sizeof(struct Produit),1,file_produit)){
-//        for(int i=0;i<100;i++){
-//            for(int j=0;j<100;j++){
-//                if(produit[i].Prix < produit[j].Prix){
-//                    pro[i] =produit[i];
-//                    produit[i]=produit[j];
-//                    produit[j]=pro[i];
-//                }
-//            }
-//        }
-//    }
-//    for(int i=0;i<100;i++){
-//        printf("\n\t\t\t Code de Produit est     : %d \n",produit[i].Code);
-//        printf("\n\t\t\t Nom de Produit est      : %s \n",produit[i].Nom);
-//        printf("\n\t\t\t quantite de Produit est : %d \n",produit[i].Quantite);
-//        printf("\n\t\t\t Prix de Produit est     : %.2f %s \n",produit[i].Prix,"DH");
-//    }
-//
-//    fclose(file_produit);
-//
-//
-//
-//}
 
 
 int main()
